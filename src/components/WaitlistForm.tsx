@@ -1,4 +1,3 @@
-// src/components/WaitlistForm.tsx
 import React, { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
@@ -9,16 +8,19 @@ interface WaitlistFormProps {
   showSpotsLeft?: boolean
 }
 
-const WaitlistForm = ({ spotsLeft, showSpotsLeft = true }: WaitlistFormProps) => {
+const WaitlistForm = ({
+  spotsLeft,
+  showSpotsLeft = true,
+}: WaitlistFormProps) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    whatsappNumber: ''
+    whatsappNumber: '',
   })
-  const [status, setStatus] = useState('')
+  const [status, setStatus] = useState<string | null>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,23 +28,27 @@ const WaitlistForm = ({ spotsLeft, showSpotsLeft = true }: WaitlistFormProps) =>
     setStatus('Отправка…')
     const { data, error } = await supabase
       .from('whitelist')
-      .insert([{
-        name: formData.name,
-        email: formData.email,
-        phone: formData.whatsappNumber
-      }], { returning: 'representation' })
-
+      .insert(
+        [
+          {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.whatsappNumber,
+          },
+        ],
+        { returning: 'representation' }
+      )
     if (error) {
       console.error(error)
       setStatus(`Ошибка: ${error.message}`)
     } else {
-      setStatus('Спасибо! Мы получили вашу заявку.')
+      setStatus('Спасибо! Ваша заявка принята.')
       setFormData({ name: '', email: '', whatsappNumber: '' })
     }
   }
 
   return (
-    <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
+    <div className="space-y-4">
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           name="name"
@@ -70,9 +76,9 @@ const WaitlistForm = ({ spotsLeft, showSpotsLeft = true }: WaitlistFormProps) =>
           🚀 Join Now - It's Free
         </Button>
       </form>
-      {status && <p className="mt-2 text-center">{status}</p>}
+      {status && <p className="text-center mt-2">{status}</p>}
       {showSpotsLeft && (
-        <p className="text-center mt-4 text-sm text-gray-600">
+        <p className="text-center text-sm text-emerald-100">
           Only <span className="font-bold">{spotsLeft}</span> spots left out of 50
         </p>
       )}
