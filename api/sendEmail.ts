@@ -6,14 +6,14 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY!)
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).end()
   const { name, email } = req.body
+
   try {
     await sgMail.send({
       to: email,
-      from: 'noreply@yourapp.com',  // тот же, что вы верифицировали в SendGrid
-      subject: 'Welcome to our waitlist!',
-      text: `Hi ${name}, thanks for joining!`,
+      from: 'waitlist.leadqualifier@zohomail.com', // ваш подтверждённый Single Sender
+      subject: 'Thanks for joining our waitlist!',
+      text: `Hi ${name},\n\nWe’ll be in touch soon.\n\n– Team`,
     })
-    console.log(`Email sent to ${email}`)
     return res.status(200).json({ ok: true })
   } catch (err: any) {
     console.error('SendGrid error:', err)
