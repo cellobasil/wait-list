@@ -1,4 +1,6 @@
+// src/components/WaitlistForm.tsx
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,47 +10,48 @@ interface WaitlistFormProps {
   showSpotsLeft?: boolean
 }
 
-const WaitlistForm = ({
+const WaitlistForm: React.FC<WaitlistFormProps> = ({
   spotsLeft,
   showSpotsLeft = true,
-}: WaitlistFormProps) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    whatsappNumber: '',
-  })
+}) => {
+  const [formData, setFormData] = useState({ name: '', email: '' })
   const [status, setStatus] = useState<string | null>(null)
+  const navigate = useNavigate()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setStatus('Отправка…')
+    setStatus('Sending…')
+
+    // 1) Сохраняем в Supabase
     const { data, error } = await supabase
       .from('whitelist')
       .insert(
-        [
-          {
-            name: formData.name,
-            email: formData.email,
-            phone: formData.whatsappNumber,
-          },
-        ],
+        [{ name: formData.name, email: formData.email }],
         { returning: 'representation' }
       )
+
     if (error) {
       console.error(error)
-      setStatus(`Ошибка: ${error.message}`)
-    } else {
-      setStatus('Спасибо! Ваша заявка принята.')
-      setFormData({ name: '', email: '', whatsappNumber: '' })
+      return setStatus(`Error: ${error.message}`)
     }
+
+    // 2) Отправляем email через serverless-функцию
+    await fetch('/api/sendEmail', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: formData.name, email: formData.email }),
+    })
+
+    // 3) Перенаправляем на страницу благодарности
+    navigate('/thank-you')
   }
 
   return (
-    <div className="space-y-4">
+    <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           name="name"
@@ -65,20 +68,13 @@ const WaitlistForm = ({
           onChange={handleChange}
           required
         />
-        <Input
-          name="whatsappNumber"
-          placeholder="WhatsApp Number"
-          value={formData.whatsappNumber}
-          onChange={handleChange}
-          required
-        />
         <Button type="submit" className="w-full">
-          🚀 Join Now - It's Free
+          🚀 Join Now - It’s Free
         </Button>
       </form>
-      {status && <p className="text-center mt-2">{status}</p>}
+      {status && <p className="mt-2 text-center">{status}</p>}
       {showSpotsLeft && (
-        <p className="text-center text-sm text-emerald-100">
+        <p className="text-center text-sm text-gray-600">
           Only <span className="font-bold">{spotsLeft}</span> spots left out of 50
         </p>
       )}
