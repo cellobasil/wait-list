@@ -1,10 +1,7 @@
 {
   "version": 2,
   "builds": [
-    {
-      "src": "api/**/*.ts",
-      "use": "@vercel/node"
-    },
+    { "src": "api/**/*.ts",      "use": "@vercel/node" },
     {
       "src": "package.json",
       "use": "@vercel/static-build",
@@ -12,11 +9,8 @@
     }
   ],
   "routes": [
-    // 1) Любой запрос к /api/* сначала идёт в вашу функцию
     { "src": "/api/(.*)", "dest": "/api/$1.ts" },
-    // 2) Всё, что есть как статический файл (в dist или public) — отдать его
     { "handle": "filesystem" },
-    // 3) Всё остальное — отдать index.html (SPA-фоллбэк)
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "/(.*)",     "dest": "/index.html" }
   ]
 }
