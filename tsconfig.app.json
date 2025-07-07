@@ -1,4 +1,5 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
@@ -14,6 +15,11 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    "typeRoots": [
+      "node_modules/@types",
+      "src/types"
+    ],
+
     /* Linting */
     "strict": false,
     "noUnusedLocals": false,
@@ -26,5 +32,8 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"]
+  "include": [
+    "src",           // ваши .ts/.tsx
+    "src/types"      // добавить, чтобы TS прочитал наши .d.ts
+  ]
 }
