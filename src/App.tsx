@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import ThankYou from './pages/ThankYou'
 import NotFound from "./pages/NotFound";
+import PhLandingAnimated from './pages/PhLandingAnimated'
+
 
 const queryClient = new QueryClient();
 
@@ -16,7 +18,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<PhLandingAnimated />} />
           {<Route path="/thank-you" element={<ThankYou />} />}
           <Route path="*" element={<NotFound />} />
         </Routes>
